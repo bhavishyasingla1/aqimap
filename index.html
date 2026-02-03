@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQIMap.fun - Global Air Quality Index Map | Real-Time AQI Monitor</title>
+    <meta name="description"
+        content="Interactive global air quality index map with real-time AQI data for 195+ countries. Monitor air pollution, check cigarette equivalents, and track air quality worldwide.">
+    <meta name="keywords"
+        content="AQI, air quality index, air pollution, global AQI map, real-time air quality, cigarette equivalent, PM2.5, air quality monitor">
+    <meta name="author" content="Bhavishya Singla">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://aqimap.fun/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aqimap.fun/">
+    <meta property="og:title" content="AQIMap.fun - Global Air Quality Index Map">
+    <meta property="og:description"
+        content="Interactive global air quality map with real-time AQI data for 195+ countries.">
+    <meta property="og:image" content="https://aqimap.fun/og-image.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://aqimap.fun/">
+    <meta name="twitter:title" content="AQIMap.fun - Global Air Quality Index Map">
+    <meta name="twitter:description"
+        content="Interactive global air quality map with real-time AQI data for 195+ countries.">
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css?v=11.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- D3.js v7 library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- TopoJSON library for converting topological data -->
+    <script src="https://unpkg.com/topojson@3"></script>
+</head>
+
+<body>
+    <main class="app">
+        <!-- Map Wrapper (for positioning zoom controls outside overflow:hidden) -->
+        <div class="map-wrapper">
+            <!-- Map Container -->
+            <div class="map-container">
+                <svg id="world-map" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+
+            <!-- Zoom Controls (outside map-container to avoid overflow clipping) -->
+            <div class="zoom-controls">
+                <button id="zoom-in" class="zoom-btn" data-tooltip="Zoom In">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button id="zoom-out" class="zoom-btn" data-tooltip="Zoom Out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button id="zoom-reset" class="zoom-btn" data-tooltip="Reset View">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path>
+                    </svg>
+                </button>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="zoom-btn" data-tooltip="Toggle Theme">
+                    <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Popup (Hidden by default) -->
+        <div id="info-popup" class="info-popup">
+            <!-- AQI Color Bar at top -->
+            <div id="popup-aqi-bar" class="aqi-bar"></div>
+
+            <button id="close-popup" class="close-btn" aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <h2 id="popup-country">Country Name</h2>
+
+            <div class="stats-row">
+                <div class="stat">
+                    <span class="stat-label">Air Quality Index</span>
+                    <span id="popup-aqi" class="stat-value">--</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Cigarettes/Day</span>
+                    <span id="popup-cig" class="stat-value">-- 🚬</span>
+                </div>
+            </div>
+
+            <p id="popup-note" class="data-note"></p>
+        </div>
+    </main>
+
+    <!-- Premium Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <nav class="footer-nav">
+                <a href="about.html" class="footer-link">About Us</a>
+                <span class="footer-divider">·</span>
+                <a href="how-to-use.html" class="footer-link">How to Use</a>
+                <span class="footer-divider">·</span>
+                <a href="privacy-policy.html" class="footer-link">Privacy Policy</a>
+                <span class="footer-divider">·</span>
+                <a href="terms.html" class="footer-link">Terms & Conditions</a>
+                <span class="footer-divider">·</span>
+                <a href="disclaimer.html" class="footer-link">Disclaimer</a>
+            </nav>
+            <p class="footer-credit">
+                Data from <a href="https://aqicn.org" target="_blank" rel="noopener">WAQI</a>
+                <span class="footer-divider">·</span>
+                Made with <span class="heart">♥</span> by
+                <a href="https://linkedin.com/in/bhavishyasingla1" target="_blank" rel="noopener"
+                    class="author-link">Bhavishya Singla</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/fallback-aqi-data.js?v=6.0"></script>
+    <script src="js/app.js?v=6.0"></script>
+</body>
+
+</html>

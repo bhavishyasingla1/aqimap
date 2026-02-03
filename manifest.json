@@ -1,0 +1,21 @@
+{
+  "name": "AQIMap.fun - Global Air Quality Index Map",
+  "short_name": "AQIMap",
+  "description": "Interactive global air quality index map with real-time and historical AQI data for 195+ countries",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#dceeff",
+  "background_color": "#f0f7ff",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

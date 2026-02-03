@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow standard resource directories
+Disallow: /js/
+Disallow: /css/
+
+# Sitemap
+Sitemap: https://aqimap.fun/sitemap.xml

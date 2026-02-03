@@ -1,0 +1,294 @@
+# AQIMap.fun - Project Overview for AI Assistants
+
+## 🌍 Project Description
+
+AQIMap.fun is a real-time global air quality index (AQI) monitoring web application that visualizes pollution levels for 195+ countries through an interactive world map. The platform translates complex environmental data into accessible, relatable metrics (including cigarette equivalents) to raise awareness about air pollution worldwide.
+
+**Live URL (Future):** aqimap.fun  
+**Creator:** Bhavishya Singla  
+**Tech Stack:** Vanilla JS, HTML5, CSS3, D3.js, WAQI API  
+**Purpose:** Educational, non-commercial, public awareness tool
+
+---
+
+## 📁 Project Structure
+
+```
+global-aqi-monitor/
+├── index.html                 # Main map interface
+├── about.html                 # About us page with mission, creator info
+├── how-to-use.html            # Comprehensive usage guide and FAQ
+├── privacy-policy.html        # GDPR-compliant privacy policy
+├── terms.html                 # Terms & conditions
+├── disclaimer.html            # Data accuracy and health disclaimers
+│
+├── css/
+│   ├── style.css             # Main application styles, variables, components
+│   └── pages.css             # Shared styles for all SEO pages (premium design)
+│
+├── js/
+│   ├── app.js                # Core application logic, routing, API integration
+│   ├── fallbackData.js       # 2025 AQI averages for countries (IQAir data)
+│   ├── cityData.js           # Major city coordinates for data preloading
+│   └── world-geojson.js      # GeoJSON data for D3.js map rendering
+│
+├── aqi/                       # Static AQI data folder (manual fallbacks)
+├── llm.txt                    # This file - AI assistant context
+├── README.md                  # Project documentation for developers
+├── sitemap.xml                # SEO sitemap
+├── robots.txt                 # Search engine crawler instructions
+└── manifest.json              # PWA manifest for mobile
+```
+
+---
+
+## 🎨 Design Philosophy
+
+### Visual Design
+- **Glassmorphism aesthetic:** Frosted glass effects with backdrop blur
+- **Premium shadows:** Multi-layered shadows for depth (0 4px 16px rgba)
+- **Color-coded AQI:** WHO standard colors (green=good, yellow=moderate, red=poor, purple=hazardous)
+- **Dark mode support:** Full theme toggle with localStorage persistence
+- **Responsive:** Mobile-first, works on all devices
+
+### User Experience Principles
+- **Zero friction:** No signup, no accounts, instant access
+- **Privacy-first:** No analytics, no tracking, minimal localStorage
+- **Fast performance:** Smart caching, preloading, < 2s load time
+- **SEO-friendly:** Dedicated URLs for every country (e.g., /india)
+
+---
+
+---
+
+## ✨ Recent Improvements (February 2026)
+
+### UI & UX Enhancements
+- **Compact Tooltip Redesign:** All map controls now feature a redesigned, compact tooltip with premium glassmorphism styling and smooth transitions.
+- **Zoom Reset Functionality:** Added a dedicated "⊕" (Zoom Reset) button that centers the map and resets the zoom level to its initial state.
+- **Premium Footer Styling:** The application footer across all pages now uses a unified glassmorphism style with light blue (#60a5fa) highlights for links in dark mode, ensuring high legibility and a modern aesthetic.
+- **Full Country Name Popups:** Popups now display the complete, human-readable name of countries (e.g., "United States" instead of "USA") for better clarity and SEO.
+- **Dynamic Cigarette Calculation:** Refined the conversion logic based on Berkeley Earth research (1 cigarette ≈ AQI of 22 for 24 hours).
+
+### Technical Performance
+- **CSS Versioning:** Implemented a unified versioning system (?v=11.0) for `style.css` across all pages to ensure cache-busting and design consistency.
+- **Responsive Scalability:** Improved map controls positioning for mobile devices (tested at 375px width).
+
+---
+
+## 🔧 Technical Architecture
+
+### Core Technologies
+1. **Vanilla JavaScript (ES6+):** No frameworks, maximum performance
+2. **D3.js v7:** SVG-based interactive map with zoom/pan
+3. **CSS Custom Properties:** Theme system with --var() syntax
+4. **LocalStorage:** Theme preference + 30-min AQI data cache
+5. **WAQI API:** Real-time air quality data from 12,000+ stations
+
+### Key Features
+
+#### 1. Interactive Map (`index.html` + `app.js`)
+- D3.js renders world map from GeoJSON data
+- Hover over countries → instant color-coded AQI display
+- Click country → popup with detailed data
+- **Zoom Reset:** Dedicated center-and-reset button (⊕)
+- Zoom controls (+/- buttons, mouse wheel)
+- Pan map by click-drag
+
+#### 2. URL Routing System
+- Client-side routing using `window.history.pushState`
+- SEO URLs: `aqimap.fun/india`, `aqimap.fun/united-states`
+- Country name → slug conversion (`countryToSlug()`)
+- `loadCountryFromURL()` preloads country data on page load
+- `resetURL()` when closing popup (returns to `/`)
+
+**Important:** The `window.history.pushState()` throws errors on `file://` protocol (local development) but works fine when deployed to a real domain. This is handled via try-catch.
+
+#### 3. AQI Data Flow
+```
+User clicks country
+  ↓
+fetchAQI(countryName)
+  ↓
+Check cache (30 min expiry)
+  ↓ (if expired/missing)
+Query WAQI API → /feed/{city}
+  ↓ (if no real-time data)
+Fallback to fallbackData.js (2-year averages)
+  ↓
+Calculate cigarettes (AQI ÷ 22)
+  ↓
+openPopup(country, data) → visual display
+```
+
+#### 4. Caching Strategy
+- **SessionStorage:** Temporary in-memory cache during browser session
+- **30-minute TTL:** Balance between freshness and API rate limits
+- **Preloading:** Major countries (India, USA, China, UK, etc.) load on page init
+- **localStorage:** Only for theme preference (`aqi-theme`)
+
+#### 5. Cigarette Equivalent Calculation
+Formula: `Cigarettes per day = AQI ÷ 22`  
+Based on Berkeley Earth research: 1 cigarette ≈ AQI of 22 for 24 hours
+
+---
+
+## 🎯 SEO Strategy
+
+### Keywords
+Primary: `aqimap.fun`, `air quality index`, `real-time AQI`, `global air pollution`  
+Secondary: `world air quality map`, `AQI monitoring`, `cigarette equivalents`, `pollution tracker`
+
+### Content Pages (All 1500-2500+ characters)
+- **about.html:** Mission, creator bio, tech stack, social links, detailed features
+- **how-to-use.html:** Step-by-step guide, AQI color table, FAQ, usage tips
+- **privacy-policy.html:** GDPR-compliant, no tracking, localStorage explanation
+- **terms.html:** Service description, acceptable use, liability, IP rights
+- **disclaimer.html:** Data accuracy warnings, health disclaimers, limitations
+
+### Technical SEO
+- Semantic HTML5 (header, main, footer, article)
+- Meta descriptions < 160 chars
+- Open Graph tags for social sharing (future)
+- Sitemap.xml with all pages
+- Robots.txt allows all crawlers
+
+---
+
+## 🌐 API Integration
+
+### World Air Quality Index (WAQI) API
+**Endpoint:** `https://api.waqi.info/feed/{city}/?token={API_TOKEN}`  
+**Rate Limit:** Conservative usage with caching to respect free tier  
+**Data Format:**
+```json
+{
+  "status": "ok",
+  "data": {
+    "aqi": 156,
+    "city": {
+      "name": "Delhi",
+      "geo": [28.6139, 77.2090]
+    },
+    "time": {...}
+  }
+}
+```
+
+### Error Handling
+- WAQI API down → fallback to fallbackData.js
+- Country has no stations → use 2-year historical average
+- Network error → graceful error message, no app crash
+
+---
+
+## 🚀 Deployment Considerations
+
+### Domain Configuration (aqimap.fun)
+When deploying to production:
+1. Update all absolute URLs from `/` to `https://aqimap.fun/`
+2. Configure server to serve `index.html` for all routes (SPA routing)
+3. Add `.htaccess` or nginx config for proper redirects:
+   ```apache
+   RewriteEngine On
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^.*$ /index.html [L]
+   ```
+
+### Environment Variables
+- WAQI API token is currently hardcoded (consider environment variable for production)
+- No server-side processing required (static hosting works)
+
+### Hosting Recommendations
+- **GitHub Pages:** Free, easy deployment, supports custom domains
+- **Netlify:** Auto-deploy from Git, serverless functions available
+- **Vercel:** Excellent performance, edge network
+- **Cloudflare Pages:** CDN benefits, DDoS protection
+
+---
+
+## 🎨 Theme System
+
+### CSS Custom Properties (style.css)
+```css
+:root {
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --bg-primary: linear-gradient(...);
+  --country-fill: rgba(255, 255, 255, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* ... */
+}
+
+[data-theme="dark"] {
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --bg-primary: linear-gradient(to bottom, #0f1419, #1a1f2e);
+  --country-fill: rgba(255, 255, 255, 0.25);
+  /* ... */
+}
+```
+
+### Theme Toggle
+- Button in bottom-right corner (sun/moon icon)
+- Saves to `localStorage.getItem('aqi-theme')`
+- Applied via `document.body.setAttribute('data-theme', 'dark')`
+
+---
+
+## 🐛 Known Issues & Limitations
+
+1. **file:// protocol:** URL routing requires HTTP server, doesn't work with local file://
+2. **Country-level averages:** No city-level granularity yet (planned feature)
+3. **API rate limits:** Free WAQI tier, must cache aggressively
+4. **Historical data gaps:** Some countries have incomplete 2-year averages
+5. **No mobile app:** Web-only, no native iOS/Android (future roadmap)
+
+---
+
+## 🔜 Future Roadmap
+
+- [ ] City-level AQI (drill down from countries)
+- [ ] Historical trends chart (7/30/90 day graphs)
+- [ ] Air quality forecasts (next 24-48 hours)
+- [ ] Health recommendations based on AQI levels
+- [ ] Mobile apps (React Native or Flutter)
+- [ ] Push notifications for pollution alerts
+- [ ] Comparison tool (multiple cities side-by-side)
+- [ ] Educational blog content about air pollution
+
+---
+
+## 💡 Development Tips for AI Assistants
+
+### When modifying code:
+- Maintain vanilla JS (no frameworks)
+- Preserve glassmorphism design language
+- Keep dark mode compatibility
+- Test URL routing on HTTP server, not file://
+- Update both light + dark theme CSS variables
+
+### When adding features:
+- Check WAQI API docs: https://aqicn.org/json-api/doc/
+- Update fallbackData.js if adding new countries
+- Add keywords naturally to new content (no keyword stuffing)
+- Ensure mobile responsiveness (test at 375px width)
+
+### When debugging:
+- Check browser console for API errors
+- Verify localStorage has 'aqi-theme' key
+- Test with WAQI API token validity
+- Clear sessionStorage cache if data seems stale
+
+---
+
+## 📞 Contact & Support
+
+**Creator:** Bhavishya Singla  
+**Website:** hibhavishya.in  
+**LinkedIn:** linkedin.com/in/bhavishyasingla1  
+**GitHub:** (Link in about.html)
+
+**Data Attribution:** World Air Quality Index (aqicn.org)  
+**License:** Educational use, not for commercial redistribution
